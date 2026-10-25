@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishna Translate - Premium AI Translation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glow-button {
+            position: relative;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .glow-button:hover {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .shimmer {
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .translate-anim {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        /* Loading Dots Animation */
+        .dot-flashing {
+            position: relative;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: #6366f1;
+            color: #6366f1;
+            animation: dot-flashing 1s infinite linear alternate;
+            animation-delay: 0.5s;
+        }
+        .dot-flashing::before, .dot-flashing::after {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            top: 0;
+        }
+        .dot-flashing::before {
+            left: -15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: #6366f1;
+            color: #6366f1;
+            animation: dot-flashing 1s infinite linear alternate;
+            animation-delay: 0s;
+        }
+        .dot-flashing::after {
+            left: 15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: #6366f1;
+            color: #6366f1;
+            animation: dot-flashing 1s infinite linear alternate;
+            animation-delay: 1s;
+        }
+
+        @keyframes dot-flashing {
+            0% { background-color: #6366f1; }
+            50%, 100% { background-color: rgba(99, 102, 241, 0.2); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex items-center justify-center">
+
+    <div class="max-w-6xl w-full">
+        <!-- API Key Configuration (New for standalone use) -->
+        <div id="apiConfig" class="fixed top-4 right-4 z-50">
+            <button id="toggleSettings" class="p-3 glass rounded-full hover:bg-slate-700/50 transition-all group" title="API Settings">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400 group-hover:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+            
+            <div id="settingsPanel" class="hidden absolute right-0 mt-2 w-72 glass rounded-2xl p-4 shadow-2xl">
+                <h3 class="text-indigo-400 font-bold mb-3">Settings</h3>
+                <p class="text-xs text-slate-400 mb-3">To use this app standalone, enter your Gemini API Key from Google AI Studio.</p>
+                <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key..." 
+                    class="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 mb-3">
+                <button id="saveKeyBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2 rounded-lg transition-colors">
+                    Save Configuration
+                </button>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="text-center mb-12 translate-anim">
+            <h1 class="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 mb-4">
+                Krishna Translate
+            </h1>
+            <p class="text-slate-400 text-lg">Instant, high-fidelity AI translations with crystal clear speech.</p>
+        </header>
+
+        <!-- Main Translator Card -->
+        <main class="glass rounded-3xl p-6 md:p-10 translate-anim">
+            
+            <!-- Language Selection Bar -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+                <!-- Source Lang -->
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2">From</label>
+                    <select id="sourceLang" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer">
+                        <option value="en-US">English</option>
+                        <option value="es-US">Spanish</option>
+                        <option value="fr-FR">French</option>
+                        <option value="de-DE">German</option>
+                        <option value="ja-JP">Japanese</option>
+                        <option value="hi-IN">Hindi</option>
+                        <option value="ko-KR">Korean</option>
+                        <option value="pt-BR">Portuguese</option>
+                        <option value="ru-RU">Russian</option>
+                        <option value="zh-CN">Chinese</option>
+                    </select>
+                </div>
+
+                <!-- Swap Button -->
+                <button id="swapBtn" class="mt-6 p-3 glass rounded-full hover:bg-slate-700/50 transition-colors group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </button>
+
+                <!-- Target Lang -->
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2">To</label>
+                    <select id="targetLang" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer">
+                        <option value="es-US" selected>Spanish</option>
+                        <option value="en-US">English</option>
+                        <option value="fr-FR">French</option>
+                        <option value="de-DE">German</option>
+                        <option value="ja-JP">Japanese</option>
+                        <option value="hi-IN">Hindi</option>
+                        <option value="ko-KR">Korean</option>
+                        <option value="pt-BR">Portuguese</option>
+                        <option value="ru-RU">Russian</option>
+                        <option value="zh-CN">Chinese</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Text Areas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Source Input -->
+                <div class="relative">
+                    <textarea id="sourceText" placeholder="Enter text to translate..." 
+                        class="w-full h-64 bg-slate-900/40 text-xl border-none text-white p-6 rounded-2xl resize-none focus:ring-2 focus:ring-indigo-500/50 placeholder-slate-600 transition-all"></textarea>
+                    <div class="absolute bottom-4 left-4 flex gap-2">
+                         <span id="charCount" class="text-xs text-slate-500 bg-black/20 px-2 py-1 rounded">0 / 5000</span>
+                    </div>
+                </div>
+
+                <!-- Result Output -->
+                <div class="relative group">
+                    <div id="loadingOverlay" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm rounded-2xl flex items-center justify-center hidden z-10">
+                        <div class="dot-flashing"></div>
+                    </div>
+                    <div id="targetText" class="w-full h-64 bg-indigo-500/5 text-xl text-indigo-100 p-6 rounded-2xl overflow-y-auto whitespace-pre-wrap empty:before:content-['Translation_will_appear_here...'] empty:before:text-slate-600 transition-all"></div>
+                    
+                    <!-- Action Bar -->
+                    <div class="absolute bottom-4 right-4 flex gap-2">
+                        <button id="copyBtn" class="p-2.5 glass rounded-lg hover:bg-slate-700 transition-colors tooltip" title="Copy text">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                        </button>
+                        <button id="speakBtn" class="p-2.5 glass rounded-lg hover:bg-slate-700 transition-colors" title="Listen to translation">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Translate Button -->
+            <div class="mt-8 flex justify-center">
+                <button id="translateBtn" class="glow-button w-full md:w-64 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-2xl flex items-center justify-center gap-2 text-lg">
+                    <span>Translate Now</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer Toast -->
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full text-sm font-medium transform transition-all translate-y-24 opacity-0 z-50">
+            Copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        const sourceText = document.getElementById('sourceText');
+        const targetText = document.getElementById('targetText');
+        const sourceLang = document.getElementById('sourceLang');
+        const targetLang = document.getElementById('targetLang');
+        const translateBtn = document.getElementById('translateBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const speakBtn = document.getElementById('speakBtn');
+        const charCount = document.getElementById('charCount');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const toast = document.getElementById('toast');
+
+        // New elements for standalone functionality
+        const settingsPanel = document.getElementById('settingsPanel');
+        const toggleSettings = document.getElementById('toggleSettings');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const saveKeyBtn = document.getElementById('saveKeyBtn');
+
+        let isTranslating = false;
+        let ttsAudio = null;
+
+        // Load saved key from localStorage
+        let savedKey = localStorage.getItem('lumina_gemini_api_key') || "";
+        apiKeyInput.value = savedKey;
+
+        toggleSettings.addEventListener('click', () => {
+            settingsPanel.classList.toggle('hidden');
+        });
+
+        saveKeyBtn.addEventListener('click', () => {
+            savedKey = apiKeyInput.value.trim();
+            localStorage.setItem('lumina_gemini_api_key', savedKey);
+            showToast("API Key saved locally!");
+            settingsPanel.classList.add('hidden');
+        });
+
+        const showToast = (message) => {
+            toast.innerText = message;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        };
+
+        const updateCharCount = () => {
+            charCount.innerText = `${sourceText.value.length} / 5000`;
+        };
+
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcmData, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+            const view = new DataView(buffer);
+
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+
+            writeString(0, 'RIFF');
+            view.setUint32(4, 32 + pcmData.length * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, pcmData.length * 2, true);
+
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        async function translate() {
+            const text = sourceText.value.trim();
+            if (!text) return;
+            if (isTranslating) return;
+
+            if (!savedKey) {
+                showToast("Please enter an API Key in settings!");
+                settingsPanel.classList.remove('hidden');
+                return;
+            }
+
+            isTranslating = true;
+            loadingOverlay.classList.remove('hidden');
+            targetText.innerText = "";
+            
+            const from = sourceLang.options[sourceLang.selectedIndex].text;
+            const to = targetLang.options[targetLang.selectedIndex].text;
+
+            const userQuery = `Translate this text from ${from} to ${to}: "${text}"`;
+            const systemPrompt = "You are a world-class professional translator. Translate the text exactly. If the input is informal, keep it informal. If formal, keep it formal. Provide only the translated text as the response, no explanations.";
+            
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${savedKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error.message || "API Error");
+                }
+
+                const translatedText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Translation failed.";
+                targetText.innerText = translatedText;
+            } catch (error) {
+                console.error("Translation error:", error);
+                targetText.innerText = `Error: ${error.message}. Check your API Key in Settings.`;
+            } finally {
+                isTranslating = false;
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        async function playTTS() {
+            const text = targetText.innerText.trim();
+            if (!text || text === "Translation will appear here...") return;
+
+            if (!savedKey) {
+                showToast("API Key required for speech.");
+                return;
+            }
+
+            const speakBtnOriginal = speakBtn.innerHTML;
+            speakBtn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            `;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${savedKey}`;
+
+            try {
+                const payload = {
+                    contents: [{
+                        parts: [{ text: `Say in a natural tone: ${text}` }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: { voiceName: "Puck" } // Versatile voice
+                            }
+                        }
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType) {
+                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || 24000, 10);
+                    const pcmDataRaw = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmDataRaw);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    
+                    if (ttsAudio) ttsAudio.pause();
+                    ttsAudio = new Audio(audioUrl);
+                    ttsAudio.play();
+                } else {
+                    showToast("Speech generation failed.");
+                }
+            } catch (err) {
+                console.error("TTS error:", err);
+                showToast("Error generating speech.");
+            } finally {
+                speakBtn.innerHTML = speakBtnOriginal;
+            }
+        }
+
+        sourceText.addEventListener('input', () => {
+            updateCharCount();
+            // Optional: Debounced auto-translate could go here
+        });
+
+        translateBtn.addEventListener('click', translate);
+
+        swapBtn.addEventListener('click', () => {
+            const tempVal = sourceLang.value;
+            sourceLang.value = targetLang.value;
+            targetLang.value = tempVal;
+            
+            const tempText = sourceText.value;
+            sourceText.value = targetText.innerText;
+            targetText.innerText = tempText;
+            
+            updateCharCount();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = targetText.innerText;
+            if (textToCopy && textToCopy !== "Translation will appear here...") {
+                const el = document.createElement('textarea');
+                el.value = textToCopy;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast("Copied to clipboard!");
+            }
+        });
+
+        speakBtn.addEventListener('click', playTTS);
+
+        // Allow Enter key to trigger translation (Ctrl+Enter or Cmd+Enter)
+        sourceText.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                translate();
+            }
+        });
+
+        window.onload = () => {
+            updateCharCount();
+            console.log("Lumina Translate Initialized");
+        };
+
+    </script>
+</body>
+</html>
